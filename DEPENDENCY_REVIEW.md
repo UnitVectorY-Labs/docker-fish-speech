@@ -21,6 +21,11 @@ but its internal WHEEL incorrectly uses `manylinux2014_sbsa`. The builder
 verifies ELF machine 183 (AArch64), corrects that metadata tag, regenerates
 its RECORD entry, and requires `pip check` to pass. Binaries remain unchanged.
 
+PyTorch 2.11's `DEVICE_REQUIREMENT[120]` accepts GPU compute capability 121.
+The ARM64 CPU test checks the wheel's compiled architecture list against that
+upstream compatibility table, rather than incorrectly requiring an exact
+sm_121 cubin. This does not substitute for real GPU synthesis validation.
+
 The server uses SDPA math with compilation disabled. No shell, package manager,
 C++ compiler, CUDA toolkit or runtime TorchInductor compilation is needed.
 Enabling upstream `--compile` would require a separate image and validation.

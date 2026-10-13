@@ -15,6 +15,9 @@ their curated shared-library closure and Python inference dependencies are
 added to the real Google Distroless base. Subprocess launch, signal handling
 and NumPy/Torch imports are tested in that final runtime. Compilation stays
 disabled: a compiler/toolkit is not needed for the SDPA math inference path.
+The CUDA13 wheels include `sm_120`, which PyTorch's compatibility table
+accepts for GB10 `sm_121`; build tests check that table without accessing a GPU.
+An exact `sm_121` cubin is not required, nor claimed.
 
 Upstream is fixed at
 [`bdd39477922a89b904c6f2c7397f2a9bbcc60a0c`](https://github.com/fishaudio/fish-speech/tree/bdd39477922a89b904c6f2c7397f2a9bbcc60a0c).
