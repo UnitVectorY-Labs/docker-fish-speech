@@ -1,5 +1,5 @@
 # PyTorch's CUDA wheels supply runtime libraries; no toolkit/sglang is needed.
-FROM python:3.12-slim-bookworm AS builder
+FROM python:3.14-slim-bookworm AS builder
 ENV PIP_NO_CACHE_DIR=1 PIP_DISABLE_PIP_VERSION_CHECK=1
 RUN apt-get update && apt-get install -y --no-install-recommends git build-essential \
     && rm -rf /var/lib/apt/lists/*
@@ -22,7 +22,7 @@ RUN git init /app/fish-speech \
     && git -C /app/fish-speech checkout --detach FETCH_HEAD \
     && rm -rf /app/fish-speech/.git
 
-FROM python:3.12-slim-bookworm AS runtime
+FROM python:3.14-slim-bookworm AS runtime
 ARG FISH_REF=bdd39477922a89b904c6f2c7397f2a9bbcc60a0c
 LABEL org.opencontainers.image.source="https://github.com/UnitVectorY-Labs/docker-fish-speech" \
       org.opencontainers.image.title="Fish Speech S2-Pro CUDA inference runtime" \
