@@ -4,6 +4,9 @@ Built with Fish Audio.
 The Fish Speech source is unmodified at bdd39477922a89b904c6f2c7397f2a9bbcc60a0c.
 UnitVectorY Labs provides separate MIT-licensed container automation and an API gateway.
 No model weights are distributed in this image or repository.
+NVIDIA cuSPARSELt 0.8.0 ARM64 WHEEL metadata is corrected from the invalid
+manylinux2014_sbsa tag to manylinux2014_aarch64 after ELF architecture validation.
+No NVIDIA binaries are modified.
 The descript-audiotools dependency's wheel metadata is modified to permit
 protobuf>=3.20,<6, matching Fish Speech's upstream uv dependency override.
 Its Python source is unchanged.

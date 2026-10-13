@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN python -m venv /opt/venv
 ENV PATH=/opt/venv/bin:$PATH
 COPY requirements*.txt /tmp/requirements/
-COPY patch_audiotools.py collect_runtime.py /tmp/
+COPY patch_audiotools.py collect_runtime.py fix_nvidia_wheel_tag.py /tmp/
 RUN pip install -r /tmp/requirements/requirements-build.txt \
     && pip download --no-deps -r /tmp/requirements/requirements-audiotools.txt -d /tmp/audiotools-original \
     && wheel unpack /tmp/audiotools-original/*.whl -d /tmp/audiotools-unpacked \
@@ -16,6 +16,7 @@ RUN pip install -r /tmp/requirements/requirements-build.txt \
     && wheel pack /tmp/audiotools-unpacked/* -d /tmp/audiotools-patched
 RUN pip install -r /tmp/requirements/requirements-torch.txt \
     && pip install /tmp/audiotools-patched/*.whl -r /tmp/requirements/requirements.txt \
+    && python /tmp/fix_nvidia_wheel_tag.py \
     && pip check \
     && pip install --target /testdeps -r /tmp/requirements/requirements-test.txt
 ARG FISH_REF=bdd39477922a89b904c6f2c7397f2a9bbcc60a0c
@@ -45,7 +46,7 @@ COPY --from=builder /app/fish-speech /app/fish-speech
 COPY gateway.py /app/fish-speech/gateway.py
 COPY LICENSE FISH_AUDIO_LICENSE Notice /usr/local/share/licenses/fish-speech/
 ENV PATH=/opt/venv/bin:/usr/bin PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 \
-    HOME=/home/llama XDG_CACHE_HOME=/home/llama/.cache HF_HOME=/home/llama/.cache/huggingface \
+    HOME=/home/llama USER=llama LOGNAME=llama XDG_CACHE_HOME=/home/llama/.cache HF_HOME=/home/llama/.cache/huggingface \
     TORCH_HOME=/home/llama/.cache/torch NUMBA_CACHE_DIR=/home/llama/.cache/numba \
     TOKENIZERS_PARALLELISM=false HF_HUB_DISABLE_TELEMETRY=1 \
     HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 \

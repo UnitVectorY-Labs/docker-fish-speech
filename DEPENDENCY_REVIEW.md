@@ -16,6 +16,11 @@ is intentionally retained for this fixed Fish revision; major-version changes
 must be tested separately. Existing Torch/Transformers advisories are not
 silenced. Only trusted external model files/configurations should be used.
 
+The NVIDIA cuSPARSELt 0.8.0 ARM64 wheel filename has the correct aarch64 tag,
+but its internal WHEEL incorrectly uses `manylinux2014_sbsa`. The builder
+verifies ELF machine 183 (AArch64), corrects that metadata tag, regenerates
+its RECORD entry, and requires `pip check` to pass. Binaries remain unchanged.
+
 The server uses SDPA math with compilation disabled. No shell, package manager,
 C++ compiler, CUDA toolkit or runtime TorchInductor compilation is needed.
 Enabling upstream `--compile` would require a separate image and validation.

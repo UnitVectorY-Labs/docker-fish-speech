@@ -10,6 +10,14 @@ import subprocess
 from pathlib import Path
 
 root = Path('/runtime-root')
+(root / 'etc').mkdir(parents=True, exist_ok=True)
+(root / 'etc/passwd').write_text(
+    'root:x:0:0:root:/root:/sbin/nologin\n'
+    'llama:x:1000:1000:Fish Speech:/home/llama:/sbin/nologin\n'
+    'nobody:x:65534:65534:nobody:/nonexistent:/sbin/nologin\n'
+    'nonroot:x:65532:65532:nonroot:/home/nonroot:/sbin/nologin\n'
+)
+(root / 'etc/group').write_text('root:x:0:\nllama:x:1000:\nnobody:x:65534:\nnonroot:x:65532:\n')
 skip = re.compile(r'^(libc\.so|libm\.so|libpthread\.so|libdl\.so|librt\.so|ld-linux)')
 pending = [Path('/usr/bin/ffmpeg'), Path('/usr/bin/ffprobe'), Path('/usr/bin/tini')]
 cache = subprocess.check_output(['ldconfig', '-p'], text=True)
