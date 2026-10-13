@@ -1,6 +1,6 @@
 # Deliberately preserve the known-compatible Transformers API.
 transformers==4.57.3
-numpy==1.26.4
+numpy==2.5.2
 hydra-core==1.3.7
 natsort==8.4.0
 einops==0.8.1
