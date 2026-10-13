@@ -98,9 +98,12 @@ matching CUDA wheels and successful CPU builds are not proof of synthesis.
 GB10 GPU synthesis and output WAV quality must be verified before deployment.
 AMD64 GPU synthesis is likewise untested. No deployment configuration is changed.
 
-First GHCR publication defaults to **private**. A package administrator must
-make the package public in GitHub package settings before anonymous pulls;
-the publishing token and local CLI token do not change package visibility.
+**Publication verified:** the final Distroless build passed on both native
+architectures, including 12 CPU tests each, and anonymous GHCR requests for
+`current`, both platform tags and the immutable tag returned HTTP 200.
+See [BUILD_VALIDATION.md](BUILD_VALIDATION.md) for the exact tested build,
+digests and pinned run command. Untagged OCI attestation children are normal;
+the final image manifests have actual named tags.
 
 ## License
 
