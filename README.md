@@ -1,5 +1,7 @@
 # Fish Speech S2-Pro CUDA runtime
 
+**Built with Fish Audio.**
+
 Purpose-built Fish Speech inference image for NVIDIA GB10 (ARM64, sm_121),
 also built natively for AMD64. Replaces the heavyweight sglang base with
 Python 3.12 slim and matching **PyTorch/Torchaudio 2.11.0+cu130** wheels.

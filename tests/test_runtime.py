@@ -1,4 +1,5 @@
 import importlib
+import platform
 import signal
 import subprocess
 import unittest
@@ -15,6 +16,8 @@ class RuntimeTests(unittest.TestCase):
     def test_cpu_imports(self):
         self.assertEqual(torch.__version__, torchaudio.__version__)
         self.assertEqual(torch.version.cuda, "13.0")
+        if platform.machine() == "aarch64":
+            self.assertIn("sm_121", torch._C._cuda_getArchFlags().split())
         self.assertEqual((torch.ones(2) + 1).tolist(), [2, 2])
         for name in (
             "tools.api_server", "tools.server.model_manager", "tools.server.views",
@@ -55,6 +58,22 @@ class RuntimeTests(unittest.TestCase):
                 process.poll.return_value = None
             process.send_signal.assert_called_once_with(signal.SIGTERM)
             process.wait.assert_called_once_with(timeout=30)
+
+    def test_gateway_errors_and_kill_timeout(self):
+        process = Mock()
+        process.poll.return_value = None
+        process.wait.side_effect = [subprocess.TimeoutExpired("fish", 30), None]
+        with patch.object(gateway.subprocess, "Popen", return_value=process):
+            with TestClient(gateway.app) as client:
+                with patch.object(gateway.requests, "get", side_effect=gateway.requests.ConnectionError):
+                    self.assertEqual(client.get("/v1/health").status_code, 503)
+                with patch.object(gateway.requests, "post", side_effect=gateway.requests.Timeout):
+                    self.assertEqual(client.post("/v1/audio/speech", data={"input": "Hello"}).status_code, 502)
+                upstream = Mock(ok=False, status_code=400, text="bad format")
+                with patch.object(gateway.requests, "post", return_value=upstream):
+                    self.assertEqual(client.post("/v1/audio/speech", data={"input": "Hello"}).status_code, 400)
+            process.kill.assert_called_once()
+            self.assertEqual(process.wait.call_count, 2)
 
 
 if __name__ == "__main__":

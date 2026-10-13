@@ -30,6 +30,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY --from=builder /opt/venv /opt/venv
 COPY --from=builder /app/fish-speech /app/fish-speech
 COPY gateway.py /app/fish-speech/gateway.py
+COPY LICENSE FISH_AUDIO_LICENSE Notice /usr/local/share/licenses/fish-speech/
 ENV PATH=/opt/venv/bin:$PATH PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 \
     HOME=/home/llama XDG_CACHE_HOME=/home/llama/.cache HF_HOME=/home/llama/.cache/huggingface \
     TORCH_HOME=/home/llama/.cache/torch NUMBA_CACHE_DIR=/home/llama/.cache/numba \
