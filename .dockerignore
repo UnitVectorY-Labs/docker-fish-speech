@@ -1,0 +1,9 @@
+.git
+.upstream
+.venv
+__pycache__
+*.pyc
+checkpoints
+*.pth
+*.safetensors
+*.wav

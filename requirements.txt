@@ -1,0 +1,32 @@
+# Deliberately preserve the known-compatible Transformers API.
+transformers==4.57.3
+numpy==1.26.4
+hydra-core==1.3.2
+natsort==8.4.0
+einops==0.8.1
+librosa==0.11.0
+rich==14.2.0
+kui==1.15.0
+uvicorn==0.38.0
+loguru==0.7.3
+loralib==0.1.2
+pyrootutils==1.0.4
+ormsgpack==1.12.2
+tiktoken==0.12.0
+pydantic==2.12.5
+cachetools==6.2.2
+descript-audio-codec==1.0.0
+descript-audiotools==0.7.2
+safetensors==0.7.0
+baize==0.23.1
+soundfile==0.13.1
+tqdm==4.67.1
+click==8.3.1
+# Eager imports in fish_speech.utils and audiotools require these.
+lightning==2.6.0
+tensorboard==2.18.0
+protobuf==3.19.6
+# Gateway deps must not be inherited accidentally from a heavyweight base.
+fastapi==0.123.0
+requests==2.32.5
+python-multipart==0.0.20
