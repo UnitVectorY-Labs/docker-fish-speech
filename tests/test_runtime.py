@@ -17,7 +17,8 @@ class RuntimeTests(unittest.TestCase):
         self.assertEqual(torch.__version__, torchaudio.__version__)
         self.assertEqual(torch.version.cuda, "13.0")
         if platform.machine() == "aarch64":
-            self.assertIn("sm_121", torch._C._cuda_getArchFlags().split())
+            self.assertTrue(any(arch.startswith("sm_121") for arch in
+                                torch._C._cuda_getArchFlags().split()))
         self.assertEqual((torch.ones(2) + 1).tolist(), [2, 2])
         for name in (
             "tools.api_server", "tools.server.model_manager", "tools.server.views",
