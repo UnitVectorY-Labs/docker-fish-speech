@@ -1,5 +1,7 @@
 import importlib
 import platform
+import os
+import shutil
 import signal
 import subprocess
 import unittest
@@ -13,6 +15,15 @@ import gateway
 
 
 class RuntimeTests(unittest.TestCase):
+    def test_distroless_runtime(self):
+        self.assertEqual(os.getuid(), 1000)
+        self.assertIsNone(shutil.which('sh'))
+        self.assertIsNone(shutil.which('apt-get'))
+        self.assertIsNone(shutil.which('pip'))
+        self.assertTrue(os.access(os.environ['HOME'], os.W_OK))
+        subprocess.run(['ffmpeg', '-version'], check=True, stdout=subprocess.DEVNULL)
+        subprocess.run(['ffprobe', '-version'], check=True, stdout=subprocess.DEVNULL)
+
     def test_cpu_imports(self):
         self.assertEqual(torch.__version__, torchaudio.__version__)
         self.assertEqual(torch.version.cuda, "13.0")

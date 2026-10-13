@@ -5,3 +5,4 @@ __pycache__/
 checkpoints/
 *.wav
 .build-watch.log
+.build-watch-final.log

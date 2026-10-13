@@ -4,10 +4,17 @@
 
 Purpose-built Fish Speech inference image for NVIDIA GB10 (ARM64, sm_121),
 also built natively for AMD64. Replaces the heavyweight sglang base with
-Python 3.12 slim and matching **PyTorch/Torchaudio 2.11.0+cu130** wheels.
+Google **Distroless `python3-debian13:nonroot`**, Python 3.13 and matching
+**PyTorch/Torchaudio 2.11.0+cu130** wheels. Builder and runtime base indexes
+are digest-pinned, and the builder uses the same Debian 13 / Python 3.13 ABI.
 CUDA runtime libraries come from the wheels; the host needs a compatible
 NVIDIA driver and NVIDIA Container Toolkit. No CUDA compiler, sglang, vLLM,
 web UI, model weights or credentials are included.
+The final image contains no shell, apt or pip. Only ffmpeg/ffprobe, tini,
+their curated shared-library closure and Python inference dependencies are
+added to the real Google Distroless base. Subprocess launch, signal handling
+and NumPy/Torch imports are tested in that final runtime. Compilation stays
+disabled: a compiler/toolkit is not needed for the SDPA math inference path.
 
 Upstream is fixed at
 [`bdd39477922a89b904c6f2c7397f2a9bbcc60a0c`](https://github.com/fishaudio/fish-speech/tree/bdd39477922a89b904c6f2c7397f2a9bbcc60a0c).
@@ -74,10 +81,13 @@ do not load weights or use a GPU. Production images exclude test-only httpx.
 Builds run on relevant runtime/dependency pushes, `workflow_dispatch`, and
 Saturday **02:00 UTC**. Dependabot checks Docker, pip and Actions weekly.
 Actions are SHA-pinned. Both platform digests must succeed before updating
-`current`; fixed-build tags are
+`current`, `current-arm64` and `current-amd64`; fixed-build tags are
 `sha-<full-source-sha>-run-<run-id>-<attempt>` and are not overwritten by
 scheduled rebuilds. Dependencies and base tags can evolve, so use a published
 image digest when exact reproducibility is required.
+
+All initial Dependabot PRs were reviewed; see [DEPENDENCY_REVIEW.md](DEPENDENCY_REVIEW.md)
+for incorporated bumps and the genuine Python 3.14/Torch 2.14 compatibility blocks.
 
 **Validation boundary:** the previous sglang-based image worked on GB10 with
 this upstream revision. This replacement has no claimed GPU/audio validation;

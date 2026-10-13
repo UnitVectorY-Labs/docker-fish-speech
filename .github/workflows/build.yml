@@ -2,9 +2,9 @@ name: Build CUDA runtime
 on:
   push:
     branches: [main]
-    paths: [Dockerfile, '.dockerignore', 'requirements*.txt', 'gateway.py', 'patch_audiotools.py', 'tests/**', 'LICENSE', 'FISH_AUDIO_LICENSE', 'Notice', '.github/workflows/build.yml']
+    paths: [Dockerfile, '.dockerignore', 'requirements*.txt', '*.py', 'tests/**', 'LICENSE', 'FISH_AUDIO_LICENSE', 'Notice', '.github/workflows/build.yml']
   pull_request:
-    paths: [Dockerfile, '.dockerignore', 'requirements*.txt', 'gateway.py', 'patch_audiotools.py', 'tests/**', 'LICENSE', 'FISH_AUDIO_LICENSE', 'Notice', '.github/workflows/build.yml']
+    paths: [Dockerfile, '.dockerignore', 'requirements*.txt', '*.py', 'tests/**', 'LICENSE', 'FISH_AUDIO_LICENSE', 'Notice', '.github/workflows/build.yml']
   schedule:
     - cron: '0 2 * * 6'
   workflow_dispatch:
@@ -80,9 +80,10 @@ jobs:
         if: github.event_name != 'pull_request'
         env:
           DIGEST: ${{ steps.build.outputs.digest }}
+          ARCH: ${{ matrix.arch }}
         run: |
           mkdir -p /tmp/digests
-          touch "/tmp/digests/${DIGEST#sha256:}"
+          echo "$DIGEST" > "/tmp/digests/${ARCH}.txt"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: github.event_name != 'pull_request'
         with:
@@ -114,7 +115,11 @@ jobs:
           SOURCE_SHA: ${{ github.sha }}
         run: |
           sources=()
-          for digest in /tmp/digests/*; do sources+=("${IMAGE}@sha256:${digest##*/}"); done
           immutable="sha-${SOURCE_SHA}-run-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          for arch in arm64 amd64; do
+            digest="$(cat "/tmp/digests/${arch}.txt")"
+            sources+=("${IMAGE}@${digest}")
+            docker buildx imagetools create -t "${IMAGE}:current-${arch}" -t "${IMAGE}:${immutable}-${arch}" "${IMAGE}@${digest}"
+          done
           docker buildx imagetools create -t "${IMAGE}:current" -t "${IMAGE}:${immutable}" "${sources[@]}"
           docker buildx imagetools inspect "${IMAGE}:${immutable}" | tee -a "$GITHUB_STEP_SUMMARY"
