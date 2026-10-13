@@ -2,9 +2,9 @@ name: Build CUDA runtime
 on:
   push:
     branches: [main]
-    paths: [Dockerfile, '.dockerignore', 'requirements*.txt', 'gateway.py', 'tests/**', 'LICENSE', 'FISH_AUDIO_LICENSE', 'Notice', '.github/workflows/build.yml']
+    paths: [Dockerfile, '.dockerignore', 'requirements*.txt', 'gateway.py', 'patch_audiotools.py', 'tests/**', 'LICENSE', 'FISH_AUDIO_LICENSE', 'Notice', '.github/workflows/build.yml']
   pull_request:
-    paths: [Dockerfile, '.dockerignore', 'requirements*.txt', 'gateway.py', 'tests/**', 'LICENSE', 'FISH_AUDIO_LICENSE', 'Notice', '.github/workflows/build.yml']
+    paths: [Dockerfile, '.dockerignore', 'requirements*.txt', 'gateway.py', 'patch_audiotools.py', 'tests/**', 'LICENSE', 'FISH_AUDIO_LICENSE', 'Notice', '.github/workflows/build.yml']
   schedule:
     - cron: '0 2 * * 6'
   workflow_dispatch:

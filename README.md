@@ -17,6 +17,14 @@ upstream utilities and the DAC audiotools dependency import them eagerly.
 Datasets, wandb, gradio, pyaudio, ModelScope and other unused training/UI
 dependencies are omitted. Build tests import the complete serving path.
 
+Audiotools' obsolete Protobuf `<3.20` wheel metadata is explicitly repacked to
+`>=3.20,<6`, matching Fish upstream's `uv.override-dependencies`; Python source
+is unchanged. Protobuf 5.29.6 is installed and `pip check` must pass.
+Transformers 4.57.3 and Torch 2.11 still have known advisories: keep the API
+private, use only trusted locally provisioned checkpoints/configuration, and
+review Dependabot alerts before deployment. Compatibility pins are not a
+claim that the image is vulnerability-free.
+
 ## Run
 
 Prepare the complete `fishaudio/s2-pro` checkpoint directory **outside the

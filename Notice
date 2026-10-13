@@ -4,3 +4,6 @@ Built with Fish Audio.
 The Fish Speech source is unmodified at bdd39477922a89b904c6f2c7397f2a9bbcc60a0c.
 UnitVectorY Labs provides separate MIT-licensed container automation and an API gateway.
 No model weights are distributed in this image or repository.
+The descript-audiotools dependency's wheel metadata is modified to permit
+protobuf>=3.20,<6, matching Fish Speech's upstream uv dependency override.
+Its Python source is unchanged.

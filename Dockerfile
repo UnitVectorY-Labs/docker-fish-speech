@@ -6,8 +6,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends git build-essen
 RUN python -m venv /opt/venv
 ENV PATH=/opt/venv/bin:$PATH
 COPY requirements*.txt /tmp/requirements/
-RUN pip install -r /tmp/requirements/requirements-torch.txt \
-    && pip install -r /tmp/requirements/requirements.txt
+COPY patch_audiotools.py /tmp/patch_audiotools.py
+RUN pip install -r /tmp/requirements/requirements-build.txt \
+    && pip download --no-deps -r /tmp/requirements/requirements-audiotools.txt -d /tmp/audiotools-original \
+    && wheel unpack /tmp/audiotools-original/*.whl -d /tmp/audiotools-unpacked \
+    && python /tmp/patch_audiotools.py \
+    && wheel pack /tmp/audiotools-unpacked/* -d /tmp/audiotools-patched \
+    && pip install -r /tmp/requirements/requirements-torch.txt \
+    && pip install /tmp/audiotools-patched/*.whl -r /tmp/requirements/requirements.txt \
+    && pip check
 ARG FISH_REF=bdd39477922a89b904c6f2c7397f2a9bbcc60a0c
 RUN git init /app/fish-speech \
     && git -C /app/fish-speech remote add origin https://github.com/fishaudio/fish-speech.git \
