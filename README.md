@@ -43,7 +43,7 @@ Builds never download weights. The mounted files must be readable by UID 1000.
 
 ```sh
 docker run --rm --gpus all --name fish-speech \
-  --user 1000:1000 -p 8080:8080 \
+  --user 1000:1000 -p 127.0.0.1:8080:8080 \
   -v /home/jared/.cache/tts-models/s2-pro:/app/checkpoints/s2-pro:ro \
   -v fish-speech-cache:/home/llama/.cache \
   ghcr.io/unitvectory-labs/docker-fish-speech:current
@@ -92,11 +92,24 @@ image digest when exact reproducibility is required.
 All initial Dependabot PRs were reviewed; see [DEPENDENCY_REVIEW.md](DEPENDENCY_REVIEW.md)
 for incorporated bumps and the genuine Python 3.14/Torch 2.14 compatibility blocks.
 
-**Validation boundary:** the previous sglang-based image worked on GB10 with
-this upstream revision. This replacement has no claimed GPU/audio validation;
-matching CUDA wheels and successful CPU builds are not proof of synthesis.
-GB10 GPU synthesis and output WAV quality must be verified before deployment.
-AMD64 GPU synthesis is likewise untested. No deployment configuration is changed.
+**GB10 validation:** on 2026-10-13 UTC, final ARM64 manifest
+`sha256:619352611ec9e77091700d04a5631eb140e9fd581699e977543e9b04fac9e56e`
+(source `ab38b6aff02deea12d780d6a1cfd3a507f7d9cd8`,
+[build 38484302967](https://github.com/UnitVectorY-Labs/docker-fish-speech/actions/runs/38484302967))
+passed isolated GPU startup and synthesis with read-only external checkpoints,
+a fresh writable cache and Hugging Face offline mode. Health/speech returned
+200; the output was valid, non-silent mono PCM16 WAV at 44.1 kHz, 4.32 seconds.
+Missing input returned 422. Shutdown returned normal SIGTERM exit 143, with no
+OOM, no remaining container and physical memory recovery.
+
+Observed standalone host-memory demand was approximately **40 GiB**, including
+GPU/unified-memory allocations that Docker's accounting does not see. A 32g
+cgroup limit is not proof that this backend fits beside another large model.
+On 2026-10-14 UTC this same image also passed llama-swap synthesis, missing-input
+checks, sequential Breeze → Fish → Step switching, graceful SIGTERM exit 143,
+and host memory recovery. Actual container image IDs matched standalone tests.
+AMD64 GPU synthesis and TTS/LLM co-loading remain untested. Retest updated
+images; successful CPU builds alone are not proof of GPU synthesis.
 
 **Publication verified:** the final Distroless build passed on both native
 architectures, including 12 CPU tests each, and anonymous GHCR requests for
