@@ -34,7 +34,7 @@ RUN python /tmp/collect_runtime.py \
     && mkdir -p /runtime-root/home/llama/.cache /runtime-root/app/checkpoints/s2-pro \
     && chown -R 1000:1000 /runtime-root/home/llama
 
-FROM gcr.io/distroless/python3-debian13:nonroot@sha256:83aa8d4f74a4d7f7cf2d472054139bef71a927b76c680c0f2e1021d6b1d6d732 AS runtime
+FROM gcr.io/distroless/python3-debian13:nonroot@sha256:64e54c4b1200da244d80181d98e86fc01d73c8101f107d5baf472152d8e119a2 AS runtime
 ARG FISH_REF=bdd39477922a89b904c6f2c7397f2a9bbcc60a0c
 LABEL org.opencontainers.image.source="https://github.com/UnitVectorY-Labs/docker-fish-speech" \
       org.opencontainers.image.title="Fish Speech S2-Pro Distroless CUDA inference runtime" \
