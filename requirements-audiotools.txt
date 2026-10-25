@@ -1,1 +1,2 @@
+-r requirements-security.txt
 descript-audiotools==0.7.2

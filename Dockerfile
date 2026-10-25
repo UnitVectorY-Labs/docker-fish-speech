@@ -6,16 +6,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 RUN python -m venv /opt/venv
 ENV PATH=/opt/venv/bin:$PATH
+COPY requirements-torch.txt /tmp/requirements/
+RUN pip install -r /tmp/requirements/requirements-torch.txt \
+    && sed '/^--/d' /tmp/requirements/requirements-torch.txt > /tmp/torch-constraints.txt
 COPY requirements*.txt /tmp/requirements/
 COPY patch_audiotools.py collect_runtime.py fix_nvidia_wheel_tag.py /tmp/
 RUN pip install -r /tmp/requirements/requirements-build.txt \
     && pip download --no-deps -r /tmp/requirements/requirements-audiotools.txt -d /tmp/audiotools-original \
-    && wheel unpack /tmp/audiotools-original/*.whl -d /tmp/audiotools-unpacked \
+    && wheel unpack /tmp/audiotools-original/descript_audiotools-*.whl -d /tmp/audiotools-unpacked \
     && python /tmp/patch_audiotools.py \
     && mkdir -p /tmp/audiotools-patched \
     && wheel pack /tmp/audiotools-unpacked/* -d /tmp/audiotools-patched
-RUN pip install -r /tmp/requirements/requirements-torch.txt \
-    && pip install /tmp/audiotools-patched/*.whl -r /tmp/requirements/requirements.txt \
+RUN pip install -c /tmp/torch-constraints.txt /tmp/audiotools-patched/*.whl -r /tmp/requirements/requirements.txt \
     && python /tmp/fix_nvidia_wheel_tag.py \
     && pip check \
     && pip install --target /testdeps -r /tmp/requirements/requirements-test.txt

@@ -1,0 +1,11 @@
+# Shared security pins for runtime, audiotools resolution, and test dependencies.
+# Keep these in the resolved graph even when a manifest is scanned separately.
+pillow==13.0.0
+anyio==4.15.1
+certifi==2026.10.23
+idna==3.20
+starlette==1.10.0
+# Torch's CUDA wheel requires <82; 81 fixes CVE-2025-47273.
+setuptools==81.0.0
+# Replace the older Filelock supplied by the CUDA index.
+filelock==4.2.4

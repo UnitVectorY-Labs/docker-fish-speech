@@ -1,5 +1,8 @@
 # Dependency update review (2026-10-13)
 
+Historical review: the Transformers compatibility decision below is superseded
+by the [2026-10-25 security review](SECURITY_REVIEW.md).
+
 Every initial Dependabot PR was reviewed; compatible changes are incorporated:
 
 | PR | Update | Decision |

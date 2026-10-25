@@ -5,6 +5,7 @@ import shutil
 import signal
 import subprocess
 import unittest
+import tempfile
 from unittest.mock import Mock, patch
 
 import torch
@@ -40,6 +41,47 @@ class RuntimeTests(unittest.TestCase):
             "fish_speech.models.dac.modded_dac", "fish_speech.models.text2semantic.inference",
         ):
             importlib.import_module(name)
+
+    def test_fish_tokenizer_round_trip(self):
+        # Exercise the upstream tokenizer API offline across the Transformers 5 upgrade.
+        from tokenizers import Tokenizer
+        from tokenizers.models import WordLevel
+        from tokenizers.pre_tokenizers import WhitespaceSplit
+        from transformers import PreTrainedTokenizerFast
+        from fish_speech.tokenizer import (
+            ALL_SPECIAL_TOKENS, EOS_TOKEN, PAD_TOKEN, FishTokenizer,
+        )
+        from fish_speech.conversation import Conversation, Message
+        from fish_speech.content_sequence import TextPart
+
+        vocab = {token: i for i, token in enumerate(
+            ["[UNK]", "hello", "world", *ALL_SPECIAL_TOKENS])}
+        backend = Tokenizer(WordLevel(vocab, unk_token="[UNK]"))
+        backend.pre_tokenizer = WhitespaceSplit()
+        tokenizer = PreTrainedTokenizerFast(
+            tokenizer_object=backend, unk_token="[UNK]",
+            eos_token=EOS_TOKEN, pad_token=PAD_TOKEN,
+            additional_special_tokens=ALL_SPECIAL_TOKENS,
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            tokenizer.save_pretrained(directory)
+            fish = FishTokenizer.from_pretrained(directory)
+            self.assertEqual(fish.encode("hello world"), [1, 2])
+            self.assertEqual(fish.decode([1, 2]), "hello world")
+            self.assertEqual(fish.pad_token_id, vocab[PAD_TOKEN])
+            self.assertEqual(fish.eos_token_id, vocab[EOS_TOKEN])
+            self.assertEqual(fish.encode("<|semantic:42|>"),
+                             [vocab["<|semantic:42|>"]])
+            self.assertEqual(fish.semantic_map_tensor.tolist(),
+                             [vocab[f"<|semantic:{i}|>"] for i in range(4096)])
+            conversation = Conversation([
+                Message(role="user", parts=[TextPart(text="hello world")])])
+            values, masks, parts = conversation.encode_for_inference(fish, num_codebooks=10)
+            self.assertEqual(values.shape[0], 11)
+            self.assertIn(vocab["<|im_start|>"], values[0].tolist())
+            self.assertIn(vocab["<|im_end|>"], values[0].tolist())
+            self.assertIsNone(masks)
+            self.assertIsNone(parts)
 
     def test_gateway_without_child(self):
         with patch.object(gateway, "child", None):

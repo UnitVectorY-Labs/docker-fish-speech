@@ -21,8 +21,11 @@ An exact `sm_121` cubin is not required, nor claimed.
 
 Upstream is fixed at
 [`bdd39477922a89b904c6f2c7397f2a9bbcc60a0c`](https://github.com/fishaudio/fish-speech/tree/bdd39477922a89b904c6f2c7397f2a9bbcc60a0c).
-Transformers remains 4.57.3. The inference code uses SDPA math, without
-FlashAttention or compilation. Lightning and TensorBoard remain because
+Transformers is pinned to 5.10.2 to address model-loading and tokenizer-save
+advisories. This deliberately overrides upstream's `<=4.57.3` dependency cap;
+the container tests exercise the serving imports and an offline Fish tokenizer
+round trip, including semantic token IDs and conversation encoding. The
+inference code uses SDPA math, without FlashAttention or compilation. Lightning and TensorBoard remain because
 upstream utilities and the DAC audiotools dependency import them eagerly.
 Datasets, wandb, gradio, pyaudio, ModelScope and other unused training/UI
 dependencies are omitted. Build tests import the complete serving path.
@@ -30,10 +33,15 @@ dependencies are omitted. Build tests import the complete serving path.
 Audiotools' obsolete Protobuf `<3.20` wheel metadata is explicitly repacked to
 `>=3.20,<6`, matching Fish upstream's `uv.override-dependencies`; Python source
 is unchanged. Protobuf 5.29.6 is installed and `pip check` must pass.
-Transformers 4.57.3 and Torch 2.11 still have known advisories: keep the API
-private, use only trusted locally provisioned checkpoints/configuration, and
-review Dependabot alerts before deployment. Compatibility pins are not a
-claim that the image is vulnerability-free.
+Shared security pins in `requirements-security.txt` keep Pillow, AnyIO,
+Certifi, IDNA, Starlette and Filelock on patched versions, including when
+OSV resolves the audiotools and test manifests separately. Torch 2.11 retains
+a `torch.jit.script` memory-corruption advisory and constrains
+Setuptools below the versions fixing two lower-severity advisories. The matching
+Torchaudio CUDA wheel still blocks a coordinated upgrade. Keep the API private,
+use only trusted locally provisioned checkpoints/configuration, and review
+Dependabot alerts before deployment. See [SECURITY_REVIEW.md](SECURITY_REVIEW.md)
+for scan scope and remaining findings.
 
 ## Run
 
@@ -79,7 +87,8 @@ upstream transport failure. This adapter is not a complete OpenAI API.
 Actions builds on native `ubuntu-24.04-arm` and `ubuntu-24.04` runners;
 each image must pass CPU Torch/Torchaudio version, serving-import and mocked
 multipart/health/lifecycle tests before publication. Tests run offline and
-do not load weights or use a GPU. Production images exclude test-only httpx.
+do not load weights or use a GPU. Wrapper tests and the separate test dependency
+directory stay outside production images.
 
 Builds run on relevant runtime/dependency pushes, `workflow_dispatch`, and
 Saturday **02:00 UTC**. Dependabot checks Docker, pip and Actions weekly.
