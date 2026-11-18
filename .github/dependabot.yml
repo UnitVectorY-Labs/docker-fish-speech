@@ -12,6 +12,11 @@ updates:
     open-pull-requests-limit: 20
   - package-ecosystem: "docker"
     directory: "/"
+    # The builder must match the Distroless runtime's CPython 3.13 ABI.
+    # Keep digest/patch updates; interpreter upgrades require a coordinated migration.
+    ignore:
+      - dependency-name: "python"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
     schedule:
       interval: "weekly"
       day: "saturday"
